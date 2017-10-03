@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Terreno {
 	
-//Tarea1 SSII
+//Tarea1 
 	private static final Scanner TECLADO=new Scanner(System.in);
 	public static void main(String [] args) throws FileNotFoundException, IOException {
 		int Xt, Yt, K, MAX, C, F;
