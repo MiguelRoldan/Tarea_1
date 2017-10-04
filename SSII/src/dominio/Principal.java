@@ -76,13 +76,26 @@ public class Principal {
 		return terreno;
 	}
 
-	public static void Escribir_Terreno(int[][] terreno, int C, int F, int K, int MAX, int Xt, int Yt) {
-		//File comprobar = new File("terreno"+n+".txt");
-		FileWriter fich = null;
+	public static void Escribir_Terreno(int[][] terreno, int C, int F, int K, int MAX, int Xt, int Yt)
+			throws IOException {
+		boolean comprobar = true;
+		int n = 0;
+		File nomb = new File("terreno.txt");
+		while (comprobar) {
+			if (n == 0) {
+				nomb = new File("terreno.txt");
+			} else {
+				nomb = new File("terreno" + n + ".txt");
+			}
+			if (!nomb.exists()) {
+				comprobar = false;
+			}
+			n++;
+		}
+		FileWriter fich = new FileWriter(nomb);
+		BufferedWriter bw = new BufferedWriter(fich);
 		PrintWriter pw = null;
 		try {
-			//fich = new FileWriter("terreno"+n".txt");
-			fich = new FileWriter("terreno2.txt");
 			pw = new PrintWriter(fich);
 			pw.print(Xt + " " + Yt + " " + K + " " + MAX + " " + C + " " + F);
 			pw.println();
@@ -104,5 +117,6 @@ public class Principal {
 				e2.printStackTrace();
 			}
 		}
+		bw.close();
 	}
 }
