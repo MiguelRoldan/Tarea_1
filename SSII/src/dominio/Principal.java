@@ -13,24 +13,28 @@ public class Principal {
 		forma = Character.toLowerCase(leer.caracter("Cálculo del campo:\n F - Leer fichero\n R - Aleatorio"));
 		switch (forma) {
 		case 'f':
-			Scanner fich = new Scanner(new FileReader("terreno.txt"));
-			Xt = fich.nextInt();
-			Yt = fich.nextInt();
-			K = fich.nextInt();
-			MAX = fich.nextInt();
-			C = fich.nextInt();
-			F = fich.nextInt();
-			terreno = new int[C][F];
-			fich.hasNextLine();
-			for (int i = 0; i < C; i++) {
-				for (int j = 0; j < F; j++) {
-					terreno[i][j] = fich.nextInt();
-				}
+			try {
+				Scanner fich = new Scanner(new FileReader("Terreno.txt"));
+				Xt = fich.nextInt();
+				Yt = fich.nextInt();
+				K = fich.nextInt();
+				MAX = fich.nextInt();
+				C = fich.nextInt();
+				F = fich.nextInt();
+				terreno = new int[C][F];
 				fich.hasNextLine();
+				for (int i = 0; i < C; i++) {
+					for (int j = 0; j < F; j++) {
+						terreno[i][j] = fich.nextInt();
+					}
+					fich.hasNextLine();
+				}
+				fich.close();
+				System.out.println("Terreno creado a partir de Terreno.txt:");
+				Mostrar_Terreno(terreno);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			fich.close();
-			System.out.println("Terreno creado a partir de terreno.txt:");
-			Mostrar_Terreno(terreno);
 			break;
 		case 'r':
 			System.out.println();
@@ -45,7 +49,12 @@ public class Principal {
 			System.out.println("Terreno generado:");
 			terreno = Generar_Terreno(C, F, K, MAX);
 			Mostrar_Terreno(terreno);
-			Escribir_Terreno(terreno, C, F, K, MAX, Xt, Yt);
+			System.out.println();
+			String nombre = leer.cadena("Nombre del terreno\n\t\t('Terreno' por defecto)");
+			if (nombre.equals("")) {
+				nombre = "Terreno";
+			}
+			Escribir_Terreno(terreno, C, F, K, MAX, Xt, Yt, nombre);
 			break;
 		}
 	}
@@ -76,16 +85,16 @@ public class Principal {
 		return terreno;
 	}
 
-	public static void Escribir_Terreno(int[][] terreno, int C, int F, int K, int MAX, int Xt, int Yt)
+	public static void Escribir_Terreno(int[][] terreno, int C, int F, int K, int MAX, int Xt, int Yt, String nombre)
 			throws IOException {
 		boolean comprobar = true;
 		int n = 0;
-		File nomb = new File("terreno.txt");
+		File nomb = new File(nombre + ".txt");
 		while (comprobar) {
 			if (n == 0) {
-				nomb = new File("terreno.txt");
+				nomb = new File(nombre + ".txt");
 			} else {
-				nomb = new File("terreno" + n + ".txt");
+				nomb = new File(nombre + " (" + n + ").txt");
 			}
 			if (!nomb.exists()) {
 				comprobar = false;
