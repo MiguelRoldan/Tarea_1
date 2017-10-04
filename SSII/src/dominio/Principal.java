@@ -1,4 +1,4 @@
-package Tarea_1;
+package dominio;
 
 import java.io.FileReader;
 import java.io.IOException;
