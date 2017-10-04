@@ -1,37 +1,53 @@
 package dominio;
 
-import java.io.FileReader;
+import java.io.*;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Principal {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, Exception {
 		int Xt, Yt, K, MAX, C, F;
 		int terreno[][];
-		Scanner fich = new Scanner(new FileReader("terreno.txt"));
-		Xt = fich.nextInt();
-		Yt = fich.nextInt();
-		K = fich.nextInt();
-		MAX = fich.nextInt();
-		C = fich.nextInt();
-		F = fich.nextInt();
-		terreno = new int[C][F];
-		fich.hasNextLine();
-		for (int i = 0; i < C; i++) {
-			for (int j = 0; j < F; j++) {
-				terreno[i][j] = fich.nextInt();
-			}
+		char forma;
+		forma = Character.toLowerCase(leer.caracter("Cálculo del campo:\n F - Leer fichero\n R - Aleatorio"));
+		switch (forma) {
+		case 'f':
+			Scanner fich = new Scanner(new FileReader("terreno.txt"));
+			Xt = fich.nextInt();
+			Yt = fich.nextInt();
+			K = fich.nextInt();
+			MAX = fich.nextInt();
+			C = fich.nextInt();
+			F = fich.nextInt();
+			terreno = new int[C][F];
 			fich.hasNextLine();
+			for (int i = 0; i < C; i++) {
+				for (int j = 0; j < F; j++) {
+					terreno[i][j] = fich.nextInt();
+				}
+				fich.hasNextLine();
+			}
+			fich.close();
+			System.out.println("Terreno creado a partir de terreno.txt:");
+			Mostrar_Terreno(terreno);
+			break;
+		case 'r':
+			System.out.println();
+			System.out.println("Introduzca los valores del nuevo terreno");
+			K = leer.entero("K (media de arena)\t-:- ");
+			C = leer.entero("Columnas\t\t-:- ");
+			F = leer.entero("Filas\t\t\t-:-");
+			MAX = leer.entero("Máxima arena\t\t-:- ", K, K * C * F);
+			System.out.println("Introduzca posición del tractor");
+			Xt = leer.entero("X\t\t\t-:- ", 0, C - 1);
+			Yt = leer.entero("Y\t\t\t-:- ", 0, F - 1);
+			System.out.println("Terreno generado:");
+			terreno = Generar_Terreno(C, F, K, MAX);
+			Mostrar_Terreno(terreno);
+			Escribir_Terreno(terreno, C, F, K, MAX, Xt, Yt);
+			break;
 		}
-		fich.close();
-		System.out.println("Terreno creado a partir de terreno.txt:");
-		Mostrar_Terreno(terreno);
-		System.out.println();
-		System.out.println("Terreno generado:");
-		terreno = Generar_Terreno(C, F, K, MAX);
-		Mostrar_Terreno(terreno);
-		Escribir_Terreno(terreno);
 	}
 
 	public static void Mostrar_Terreno(int[][] terreno) {
@@ -60,7 +76,33 @@ public class Principal {
 		return terreno;
 	}
 
-	public static void Escribir_Terreno(int[][] terreno) {
-
+	public static void Escribir_Terreno(int[][] terreno, int C, int F, int K, int MAX, int Xt, int Yt) {
+		//File comprobar = new File("terreno"+n+".txt");
+		FileWriter fich = null;
+		PrintWriter pw = null;
+		try {
+			//fich = new FileWriter("terreno"+n".txt");
+			fich = new FileWriter("terreno2.txt");
+			pw = new PrintWriter(fich);
+			pw.print(Xt + " " + Yt + " " + K + " " + MAX + " " + C + " " + F);
+			pw.println();
+			for (int i = 0; i < terreno.length; i++) {
+				for (int j = 0; j < terreno[i].length; j++) {
+					pw.print(terreno[i][j] + " ");
+				}
+				if (i != terreno.length - 1) {
+					pw.println();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (null != fich)
+					fich.close();
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 	}
 }
