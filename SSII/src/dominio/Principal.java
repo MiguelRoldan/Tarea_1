@@ -1,9 +1,7 @@
 package dominio;
 
 import java.io.*;
-import java.io.IOException;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class Principal {
 	public static void main(String[] args) throws IOException, Exception {
@@ -14,7 +12,7 @@ public class Principal {
 		switch (forma) {
 		case 'f':
 			try {
-				Scanner fich = new Scanner(new FileReader("Terreno.txt"));
+				Scanner fich = new Scanner(new FileReader("Hola.txt"));
 				Xt = fich.nextInt();
 				Yt = fich.nextInt();
 				K = fich.nextInt();
@@ -23,8 +21,8 @@ public class Principal {
 				F = fich.nextInt();
 				terreno = new int[C][F];
 				fich.hasNextLine();
-				for (int i = 0; i < C; i++) {
-					for (int j = 0; j < F; j++) {
+				for (int i = 0; i < F; i++) {
+					for (int j = 0; j < C; j++) {
 						terreno[i][j] = fich.nextInt();
 					}
 					fich.hasNextLine();
@@ -32,6 +30,7 @@ public class Principal {
 				fich.close();
 				System.out.println("Terreno creado a partir de Terreno.txt:");
 				Mostrar_Terreno(terreno);
+				Generar_Sucesores(terreno, Xt, Yt, K, MAX);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -56,7 +55,9 @@ public class Principal {
 			}
 			Escribir_Terreno(terreno, C, F, K, MAX, Xt, Yt, nombre);
 			break;
+		default:
 		}
+
 	}
 
 	public static void Mostrar_Terreno(int[][] terreno) {
@@ -71,7 +72,7 @@ public class Principal {
 	public static int[][] Generar_Terreno(int C, int F, int K, int MAX) {
 		int total = C * F * K;
 		int aux = 0;
-		int terreno[][] = new int[C][F];
+		int terreno[][] = new int[F][C];
 		Random random = new Random();
 		while (total != aux) {
 			aux = 0;
@@ -127,5 +128,66 @@ public class Principal {
 			}
 		}
 		bw.close();
+	}
+
+	public static void Generar_Sucesores(int[][] terreno, int Xt, int Yt, int K, int MAX) {
+		ArrayList<ArrayList<Integer>> sucesores = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<ArrayList<Integer>>> aux = new ArrayList<ArrayList<ArrayList<Integer>>>();
+		int n = 0;
+		for (int i = 0; i < terreno.length; i++) {
+			for (int j = 0; j < terreno[i].length; j++) {
+				if (Comprobar_Sucesor(terreno, Xt, Yt, i, j)) {
+					ArrayList[] cooSuc = new ArrayList[4];
+					cooSuc[n] = new ArrayList<Integer>();
+					cooSuc[n].add(i);
+					cooSuc[n].add(j);
+					sucesores.add(cooSuc[n]);
+					n++;
+				}
+			}
+		}
+		if (terreno[Xt][Yt] > K) {
+			int sobrante = terreno[Xt][Yt] - K;
+			ArrayList<ArrayList<Integer>> sucesoresPosi = new ArrayList<ArrayList<Integer>>();
+			for (int i = 0; i < sucesores.size(); i++) {
+				ArrayList<Integer> coor = sucesores.get(i);
+				if (terreno[coor.get(0)][coor.get(1)] < K) {
+					sucesoresPosi.add(coor);
+				}
+			}
+			aux = Distribucion(sobrante, K, sucesoresPosi, terreno, 0, aux);
+			System.out.println(aux.toString());
+		}
+	}
+
+	public static boolean Comprobar_Sucesor(int[][] terreno, int Xt, int Yt, int Xs, int Ys) {
+		boolean verdad = false;
+		if (Xt == Xs + 1 && Yt == Ys && Xt != 0) {
+			verdad = true;
+		} else if (Xt == Xs && Yt == Ys + 1 && Yt != 0) {
+			verdad = true;
+		} else if (Xt == Xs && Yt == Ys - 1 && Yt != terreno[Xt].length - 1) {
+			verdad = true;
+		} else if (Xt == Xs - 1 && Yt == Ys && Xt != terreno.length - 1) {
+			verdad = true;
+		}
+		return verdad;
+	}
+
+	public static ArrayList<ArrayList<ArrayList<Integer>>> Distribucion(int sobrante, int K,
+			ArrayList<ArrayList<Integer>> sucesores, int[][] terreno, int i,
+			ArrayList<ArrayList<ArrayList<Integer>>> distribucion) {
+		if (i < sucesores.size()) {
+			ArrayList<ArrayList<Integer>> aux = new ArrayList<ArrayList<Integer>>();
+			for (int j = 0; j <= sobrante; j++) {
+				ArrayList<Integer> sobra = new ArrayList<Integer>();
+				sobra.add(j);
+				aux.add(sobra);
+				aux.add(sucesores.get(i));
+				distribucion.add(aux);
+				distribucion = Distribucion(sobrante, K, sucesores, terreno, i + 1, distribucion);
+			}
+		}
+		return distribucion;
 	}
 }
