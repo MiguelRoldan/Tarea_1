@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 
 public class Principal {
+	public static ArrayList<ArrayList<Integer>> combinaciones = new ArrayList<ArrayList<Integer>>();
+
 	public static void main(String[] args) throws IOException, Exception {
 		int Xt, Yt, K, MAX, C, F;
 		int terreno[][];
@@ -12,7 +14,12 @@ public class Principal {
 		switch (forma) {
 		case 'f':
 			try {
-				Scanner fich = new Scanner(new FileReader("Hola.txt"));
+				String nombre = leer
+						.cadena("Nombre del terreno que desea leer (sin .txt)\t-:-\n\t\t('Terreno' por defecto)");
+				if (nombre.equals("")) {
+					nombre = "Terreno";
+				}
+				Scanner fich = new Scanner(new FileReader(nombre + ".txt"));
 				Xt = fich.nextInt();
 				Yt = fich.nextInt();
 				K = fich.nextInt();
@@ -28,8 +35,11 @@ public class Principal {
 					fich.hasNextLine();
 				}
 				fich.close();
-				System.out.println("Terreno creado a partir de Terreno.txt:");
+				System.out.println("Terreno creado a partir de "+nombre+".txt:");
 				Mostrar_Terreno(terreno);
+				System.out.println();
+				System.out.println("Sucesores:");
+				System.out.println();
 				Generar_Sucesores(terreno, Xt, Yt, K, MAX);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -132,12 +142,18 @@ public class Principal {
 
 	public static void Generar_Sucesores(int[][] terreno, int Xt, int Yt, int K, int MAX) {
 		ArrayList<ArrayList<Integer>> sucesores = new ArrayList<ArrayList<Integer>>();
-		ArrayList<ArrayList<ArrayList<Integer>>> aux = new ArrayList<ArrayList<ArrayList<Integer>>>();
+		ArrayList[] cooSuc = new ArrayList[4];
+		ArrayList<Integer> coor = new ArrayList<Integer>();
+		ArrayList<ArrayList<Integer>> sucesoresPosi = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Integer>> combinacionesK = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> coorPosi = new ArrayList<Integer>();
+		ArrayList<ArrayList<Integer>> combinacionesResultado = new ArrayList<ArrayList<Integer>>();
+		int sobrante;
 		int n = 0;
+		int total = 0;
 		for (int i = 0; i < terreno.length; i++) {
 			for (int j = 0; j < terreno[i].length; j++) {
 				if (Comprobar_Sucesor(terreno, Xt, Yt, i, j)) {
-					ArrayList[] cooSuc = new ArrayList[4];
 					cooSuc[n] = new ArrayList<Integer>();
 					cooSuc[n].add(i);
 					cooSuc[n].add(j);
@@ -147,16 +163,73 @@ public class Principal {
 			}
 		}
 		if (terreno[Xt][Yt] > K) {
-			int sobrante = terreno[Xt][Yt] - K;
-			ArrayList<ArrayList<Integer>> sucesoresPosi = new ArrayList<ArrayList<Integer>>();
+			sobrante = terreno[Xt][Yt] - K;
 			for (int i = 0; i < sucesores.size(); i++) {
-				ArrayList<Integer> coor = sucesores.get(i);
+				coor = sucesores.get(i);
 				if (terreno[coor.get(0)][coor.get(1)] < K) {
 					sucesoresPosi.add(coor);
 				}
 			}
-			aux = Distribucion(sobrante, K, sucesoresPosi, terreno, 0, aux);
-			System.out.println(aux.toString());
+			int[] aux = new int[sucesoresPosi.size()];
+			Combinar(sobrante, 0, aux);
+			for (int i = 0; i < combinaciones.size(); i++) {
+				for (int j = 0; j < sucesoresPosi.size(); j++) {
+					total += combinaciones.get(i).get(j);
+				}
+				if (total == sobrante) {
+					combinacionesK.add(combinaciones.get(i));
+				}
+				total = 0;
+			}
+			/*
+			 * for (int i = 0; i < combinacionesK.size(); i++) { for (int j = 0;
+			 * j < sucesoresPosi.size(); j++) { coorPosi = sucesoresPosi.get(j);
+			 * if (terreno[coor.get(0)][coor.get(1)] +
+			 * combinacionesK.get(i).get(j) <= K) {
+			 * combinacionesResultado.add(combinacionesK.get(i)); } } }
+			 * System.out.println(combinacionesResultado.toString());
+			 */
+		}
+		ArrayList<ArrayList<ArrayList<ArrayList<Integer>>>> resultado = new ArrayList<ArrayList<ArrayList<ArrayList<Integer>>>>();
+		ArrayList<ArrayList<ArrayList<Integer>>> elemento = new ArrayList<ArrayList<ArrayList<Integer>>>();
+		ArrayList<ArrayList<Integer>> elemento21 = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Integer>> elemento2 = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> elemento3 = new ArrayList<Integer>();
+		for (int i = 0; i < sucesores.size(); i++) {
+			for (int j = 0; j < combinacionesK.size(); j++) {
+				elemento = new ArrayList<ArrayList<ArrayList<Integer>>>();
+				elemento21 = new ArrayList<ArrayList<Integer>>();
+				elemento2 = new ArrayList<ArrayList<Integer>>();
+				elemento21.add(sucesores.get(i));
+				elemento.add(elemento21);
+				for (int k = 0; k < sucesoresPosi.size(); k++) {
+					elemento3 = new ArrayList<Integer>();
+					elemento3.add(combinacionesK.get(j).get(k));
+					elemento2.add(elemento3);
+					elemento2.add(sucesoresPosi.get(k));
+				}
+				elemento.add(elemento2);
+				resultado.add(elemento);
+			}
+		}
+		System.out.println("| Movi. | | Transporte de tierra");
+		for (int i = 0; i < resultado.size(); i++) {
+			System.out.println(resultado.get(i).toString());
+		}
+	}
+
+	public static void Combinar(int sobrante, int i, int[] posiciones) {
+		if (i != posiciones.length) {
+			for (int j = 0; j <= sobrante; j++) {
+				posiciones[i] = j;
+				Combinar(sobrante, i + 1, posiciones);
+			}
+		} else {
+			ArrayList<Integer> aux = new ArrayList<Integer>();
+			for (int j = 0; j < posiciones.length; j++) {
+				aux.add(posiciones[j]);
+			}
+			combinaciones.add(aux);
 		}
 	}
 
@@ -172,22 +245,5 @@ public class Principal {
 			verdad = true;
 		}
 		return verdad;
-	}
-
-	public static ArrayList<ArrayList<ArrayList<Integer>>> Distribucion(int sobrante, int K,
-			ArrayList<ArrayList<Integer>> sucesores, int[][] terreno, int i,
-			ArrayList<ArrayList<ArrayList<Integer>>> distribucion) {
-		if (i < sucesores.size()) {
-			ArrayList<ArrayList<Integer>> aux = new ArrayList<ArrayList<Integer>>();
-			for (int j = 0; j <= sobrante; j++) {
-				ArrayList<Integer> sobra = new ArrayList<Integer>();
-				sobra.add(j);
-				aux.add(sobra);
-				aux.add(sucesores.get(i));
-				distribucion.add(aux);
-				distribucion = Distribucion(sobrante, K, sucesores, terreno, i + 1, distribucion);
-			}
-		}
-		return distribucion;
 	}
 }
